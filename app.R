@@ -79,12 +79,24 @@ server <- function(input, output, session) {
     if(input$chart_type=='Line') p <- p + geom_line(aes(y=Close), color='#2563eb', linewidth=.7)
     if(input$chart_type=='Area') p <- p + geom_area(aes(y=Close), fill='#93c5fd', alpha=.55) +
       geom_line(aes(y=Close), color='#2563eb')
-    if(input$chart_type=='Candlestick') {
-      d$Direction <- ifelse(d$Close>=d$Open, 'Up','Down')
-      p <- p + geom_segment(aes(y=Low,yend=High,xend=Date), color='gray35') +
-        geom_rect(aes(xmin=Date-.35,xmax=Date+.35,ymin=pmin(Open,Close),
-                      ymax=pmax(Open,Close),fill=Direction), color='gray25') +
-        scale_fill_manual(values=c(Down='#dc2626',Up='#16a34a'))
+    if (input$chart_type == "Candlestick") {
+      d$Direction <- ifelse(d$Close >= d$Open, "Up", "Down")
+      
+      p <- p +
+        geom_segment(
+          data = d,
+          aes(x = Date, xend = Date, y = Low, yend = High),
+          color = "gray35"
+        ) +
+        geom_segment(
+          data = d,
+          aes(x = Date, xend = Date, y = Open, yend = Close,
+              color = Direction),
+          linewidth = 2.5
+        ) +
+        scale_color_manual(
+          values = c(Down = "#d62728", Up = "#16a34a")
+        )
     }
     if('Moving Averages' %in% input$technical_indicators) {
       p <- p + geom_line(aes(y=ShortMA, color='Short SMA'), na.rm=TRUE) +
